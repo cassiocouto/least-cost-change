@@ -220,6 +220,7 @@ public class TrackerAgent extends Agent {
 			if (initialSpaces.size() == 0) {
 				initialSpace = initialSpaces.remove(0);
 			} else {
+				//search for best path
 			}
 		}
 
