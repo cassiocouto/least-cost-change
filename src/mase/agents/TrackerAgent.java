@@ -186,12 +186,17 @@ public class TrackerAgent extends Agent {
 			distances.add(distance);
 		}
 
-		// insert sort
+		orderArrayListByIndex(distances, initialSpaces);
+		System.out.println("order?");
+	}
+
+	public void orderArrayListByIndex(ArrayList<? extends Number> index, ArrayList<Point> values) {
+
 		for (int i = 1; i < initialSpaces.size(); i++) {
 			int j = i;
-			while (j > 0 && distances.get(j - 1) > distances.get(j)) {
-				Collections.swap(distances, j - 1, j);
-				Collections.swap(initialSpaces, j - 1, j);
+			while (j > 0 && index.get(j - 1).doubleValue() > index.get(j).doubleValue()) {
+				Collections.swap(index, j - 1, j);
+				Collections.swap(values, j - 1, j);
 				j--;
 			}
 		}
@@ -201,27 +206,111 @@ public class TrackerAgent extends Agent {
 
 		private static final long serialVersionUID = 1L;
 
-		private Point[][] closedSet;
+		private boolean[][] visited;
 		private Long[][] sum;
 		private ArrayList<Point> openSet;
 		private Point[][] parent;
 		private int height;
 		private int width;
 		private Point initialSpace;
+		private Point finalPoint;
 
 		public AStarPathFind() {
 			height = Main.getWeightedGraph().length;
 			width = Main.getWeightedGraph()[0].length;
 			sum = new Long[height][width];
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < width; j++) {
+					sum[i][j] = Long.MAX_VALUE;
+				}
+			}
 			parent = new Point[height][width];
+		}
+		
+		public void chooseFinalPoint(){
+			long minimum = Long.MAX_VALUE;
+			
+			for(Point p: Main.getFinalSpaces()){
+				long tentative = manhattanDistance(p, initialSpace);
+				if(minimum > tentative){
+					minimum = tentative;
+					finalPoint = p;
+				}
+			}
 		}
 
 		public void action() {
 			if (initialSpaces.size() == 0) {
-				initialSpace = initialSpaces.remove(0);
+
 			} else {
-				//search for best path
+				initialSpace = initialSpaces.remove(0);
+				visited = new boolean[height][width];
+				openSet = new ArrayList<Point>();
+				openSet.add(initialSpace);
+				sum[initialSpace.x][initialSpace.y] = (long) Main.getWeightedGraph()[initialSpace.x][initialSpace.y]
+						.getWeight();
+				ArrayList<Point> neighbours = new ArrayList<Point>();
+				ArrayList<Long> costs = new ArrayList<Long>();
+				boolean found = false;
+				for (Point actualSpace : openSet) {
+					if(actualSpace.equals(finalPoint)){
+						found = true;
+						break;
+					}
+					for (int i = -1; i <= 1; i++) {
+						for (int j = -1; j <= 1; j++) {
+							if (i == 0 && j == 0)
+								continue;
+							int nextX = (int) (actualSpace.x + i);
+							if (nextX < 0 || nextX >= height)
+								break;
+
+							int nextY = (int) (actualSpace.y + j);
+							if (nextY < 0 || nextY >= width)
+								continue;
+
+							if (visited[nextX][nextY])
+								continue;
+
+							long tentativeCost = sum[actualSpace.x][actualSpace.y].longValue()
+									+ Main.getWeightedGraph()[nextX][nextY].getWeight()
+									+ manhattanDistance(finalPoint, new Point(nextX, nextY));
+
+							if (tentativeCost < sum[nextX][nextY]) {
+								parent[nextX][nextY] = actualSpace;
+								neighbours.add(new Point(nextX, nextY));
+								costs.add(tentativeCost);
+							}
+
+						}
+					}
+					orderArrayListByIndex(costs, neighbours);
+					if (costs.size() > 0) {
+						long minimum = costs.get(0);
+						int count = 0;
+						while (costs.get(count) == minimum) {
+							openSet.add(neighbours.get(count));
+							count++;
+						}
+					}
+					visited[actualSpace.x][actualSpace.y] = true;
+				}
+				if(found){
+					//retrievePath
+				}else{
+					//openSet became empty but finalPoint was not found :(
+				}
 			}
+		}
+
+		public int manhattanDistance(Point a, Point b) {
+			int soma = a.x - b.x;
+			if (soma < 0)
+				soma = soma * -1;
+			int soma2 = a.y - b.y;
+			if (soma2 < 0)
+				soma2 = soma2 * -1;
+			return soma + soma2;
 		}
 
 	}
