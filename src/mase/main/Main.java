@@ -18,6 +18,9 @@ import mase.agents.GRIDManager;
 import mase.entity.Cell;
 
 public abstract class Main {
+
+	private static boolean isGUIActive = false;
+
 	public static final int DIJKSTRA_STRATEGY = 0;
 	public static final int ASTAR_STRATEGY = 1;
 	private static String worcwest = "res/worcwest15.bmp";
@@ -28,19 +31,31 @@ public abstract class Main {
 	private static ArrayList<Point> finalSpaces;
 	public static long startingTime;
 
-	public static int agentsQuantity = 20;
+	public static int agentsQuantity = 2;
 	public static AID GRIDManagerAddress;
 	public static AID[] agentsAddresses = new AID[agentsQuantity];
 
 	public static int choosenStrategy = DIJKSTRA_STRATEGY;
-	
+
 	public static boolean debug = false;
 
 	public static void main(String args[]) {
-		startingTime = System.currentTimeMillis();
-		initWeightedGraph();
-		setInitialAndFinalSpaces();
-		startPlatform();
+		if (args != null && args.length > 0) {
+			for (String argument : args) {
+				if (argument.startsWith("-gui:")) {
+					String value = argument.replace("-gui:", "");
+					isGUIActive = Boolean.parseBoolean(value);
+				}
+			}
+		}
+		if (isGUIActive) {
+			startGUI();
+		} else {
+			startingTime = System.currentTimeMillis();
+			initWeightedGraph();
+			setInitialAndFinalSpaces();
+			startPlatform();
+		}
 	}
 
 	public static void initWeightedGraph() {
@@ -138,6 +153,10 @@ public abstract class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static void startGUI() {
+
 	}
 
 	public static Cell[][] getWeightedGraph() {
