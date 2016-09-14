@@ -31,11 +31,11 @@ public abstract class Main {
 	private static ArrayList<Point> finalSpaces;
 	public static long startingTime;
 
-	public static int agentsQuantity = 2;
+	public static int agentsQuantity = 1;
 	public static AID GRIDManagerAddress;
 	public static AID[] agentsAddresses = new AID[agentsQuantity];
 
-	public static int choosenStrategy = DIJKSTRA_STRATEGY;
+	public static int choosenStrategy = ASTAR_STRATEGY;
 
 	public static boolean debug = false;
 
