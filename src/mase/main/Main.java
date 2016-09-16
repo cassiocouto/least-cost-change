@@ -14,6 +14,7 @@ import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
 import jade.wrapper.AgentContainer;
+import mase.GUI.GUI;
 import mase.agents.GRIDManager;
 import mase.entity.Cell;
 
@@ -38,6 +39,8 @@ public abstract class Main {
 	public static int choosenStrategy = ASTAR_STRATEGY;
 
 	public static boolean debug = false;
+	
+	public static GUI gui;
 
 	public static void main(String args[]) {
 		if (args != null && args.length > 0) {
@@ -48,14 +51,15 @@ public abstract class Main {
 				}
 			}
 		}
+
+		startingTime = System.currentTimeMillis();
+		initWeightedGraph();
+		setInitialAndFinalSpaces();
 		if (isGUIActive) {
 			startGUI();
-		} else {
-			startingTime = System.currentTimeMillis();
-			initWeightedGraph();
-			setInitialAndFinalSpaces();
-			startPlatform();
 		}
+		startPlatform();
+
 	}
 
 	public static void initWeightedGraph() {
@@ -66,12 +70,21 @@ public abstract class Main {
 			int width = imgWorcwest.getWidth();
 			weightedGraph = new Cell[height][width];
 
+			if (isGUIActive) {
+				GUI.colors = new Color[height][width];
+				GUI.auxiliaryColors = new Color[height][width];
+			}
+
 			for (int i = 0; i < height; i++) {
 				for (int j = 0; j < width; j++) {
 					Color c = new Color(imgWorcwest.getRGB(i, j));
 					int red = c.getRed();
 					int green = c.getGreen();
 					int blue = c.getBlue();
+					if (isGUIActive) {
+						GUI.colors[i][j] = new Color(red, green, blue);
+						GUI.auxiliaryColors[i][j] = new Color(255, 255, 255);
+					}
 					int weight = 0;
 					if (red == 0 && green == 255 && blue == 0) {
 						// deciduous florest
@@ -118,6 +131,9 @@ public abstract class Main {
 					if (red != 255 && green != 255 && blue != 255
 							&& weightedGraph[i][j].getWeight() != Integer.MAX_VALUE) {
 						initialSpaces.add(new Point(i, j));
+						if (isGUIActive) {
+							GUI.colors[i][j] = new Color(255, 51,163);
+						}
 					}
 
 					Color cPowerline = new Color(imgPowerline.getRGB(i, j));
@@ -129,6 +145,9 @@ public abstract class Main {
 					if (red != 255 && green != 255 && blue != 255
 							&& weightedGraph[i][j].getWeight() != Integer.MAX_VALUE) {
 						finalSpaces.add(new Point(i, j));
+						if (isGUIActive) {
+							GUI.colors[i][j] = new Color(255, 51,163);
+						}
 					}
 				}
 			}
@@ -156,7 +175,8 @@ public abstract class Main {
 	}
 
 	public static void startGUI() {
-
+		gui = new GUI();
+		gui.setVisible(true);
 	}
 
 	public static Cell[][] getWeightedGraph() {

@@ -1,6 +1,8 @@
 package mase.GUI;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -9,16 +11,22 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 public class GUI extends JFrame {
-	
+
+	private static final long serialVersionUID = 1L;
 	protected final JFrame myInstance;
 	protected final JPanel mainContents;
+	protected final JPanel simulationSite;
 	protected final JMenuBar mainMenu;
 	private JMenu file;
 	private JMenuItem config;
 	private JMenuItem exit;
+
+	public static Color[][] colors;
+	public static Color[][] auxiliaryColors;
 
 	public static void main(String[] args) {
 		// FIXME for test purposes. Delete this function in the future
@@ -36,10 +44,9 @@ public class GUI extends JFrame {
 		myInstance = this;
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
-
 		//
 		mainContents = new JPanel(new BorderLayout());
-		
+
 		// starting and attaching main menu
 		mainMenu = new JMenuBar();
 		file = new JMenu("File");
@@ -60,9 +67,42 @@ public class GUI extends JFrame {
 			}
 		});
 		file.add(exit);
+		class SimulationCanvas extends JPanel {
+			private static final long serialVersionUID = 1L;
+			public SimulationCanvas() {
+				setSize(colors.length, colors[0].length);
+			}
+			public void paint(Graphics g) {
+				super.paint(g);
+				setDoubleBuffered(true);
+				if (colors != null) {
+					for (int i = 0; i < colors.length; i++) {
+						for (int j = 0; j < colors.length; j++) {
+							if (!auxiliaryColors[i][j].equals(new Color(255, 255, 255))) {
+								g.setColor(auxiliaryColors[i][j]);
+								g.fillRect(1 * i, 1 * j, 1, 1);
+							} else {
+								g.setColor(colors[i][j]);
+								g.fillRect(1 * i, 1 * j, 1, 1);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		simulationSite = new SimulationCanvas();
+		
+		mainContents.add(simulationSite, BorderLayout.CENTER);
 		this.setJMenuBar(mainMenu);
 		this.setContentPane(mainContents);
 		this.revalidate();
+
+	}
+
+	public void repaint2() {
+		simulationSite.repaint();
+		this.repaint();
 	}
 
 }
