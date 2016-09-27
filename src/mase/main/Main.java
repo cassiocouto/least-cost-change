@@ -31,16 +31,13 @@ public abstract class Main {
 	private static ArrayList<Point> initialSpaces;
 	private static ArrayList<Point> finalSpaces;
 	public static long startingTime;
-
 	public static int agentsQuantity = 1;
 	public static AID GRIDManagerAddress;
 	public static AID[] agentsAddresses = new AID[agentsQuantity];
-
 	public static int choosenStrategy = ASTAR_STRATEGY;
-
 	public static boolean debug = false;
-	
 	public static GUI gui;
+	public static boolean optimize = false;
 
 	public static void main(String args[]) {
 		if (args != null && args.length > 0) {
@@ -48,10 +45,12 @@ public abstract class Main {
 				if (argument.startsWith("-gui:")) {
 					String value = argument.replace("-gui:", "");
 					isGUIActive = Boolean.parseBoolean(value);
+				}else if (argument.startsWith("-optimize:")) {
+					String value = argument.replace("-optimize:", "");
+					optimize = Boolean.parseBoolean(value);
 				}
 			}
 		}
-
 		startingTime = System.currentTimeMillis();
 		initWeightedGraph();
 		setInitialAndFinalSpaces();
@@ -150,6 +149,14 @@ public abstract class Main {
 						}
 					}
 				}
+			}
+			if(optimize && initialSpaces.size() > finalSpaces.size()){
+				ArrayList<Point> switcharoo = new ArrayList<>();
+				switcharoo.addAll(initialSpaces);
+				initialSpaces = new ArrayList<Point>();
+				initialSpaces.addAll(finalSpaces);
+				finalSpaces = new ArrayList<Point>();
+				finalSpaces.addAll(switcharoo);
 			}
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
