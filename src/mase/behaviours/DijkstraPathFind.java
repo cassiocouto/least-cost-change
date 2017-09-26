@@ -21,8 +21,8 @@ public class DijkstraPathFind extends OneShotBehaviour {
 
 	public DijkstraPathFind(ArrayList<Point> initialSpaces) {
 		frontier = new PriorityQueue();
-		height = Main.getWeightedGraph().length;
-		width = Main.getWeightedGraph()[0].length;
+		height = Main.getInstance().getWeightedGraph().length;
+		width = Main.getInstance().getWeightedGraph()[0].length;
 		cameFrom = new Point[height][width];
 		costSoFar = new Double[height][width];
 		this.initialSpaces = initialSpaces;
@@ -35,17 +35,17 @@ public class DijkstraPathFind extends OneShotBehaviour {
 			currentInitialPoint = initialSpaces.remove(0);
 			frontier.add(0, currentInitialPoint);
 			costSoFar[currentInitialPoint.x][currentInitialPoint.y] = new Double(
-					Main.getWeightedGraph()[currentInitialPoint.x][currentInitialPoint.y].getWeight());
+					Main.getInstance().getWeightedGraph()[currentInitialPoint.x][currentInitialPoint.y].getWeight());
 			boolean found = false;
 			while (!found || frontier.size() > 0) {
 				Point actualPoint = (Point) frontier.remove(0);
-				if (Main.getFinalSpaces().contains(actualPoint)) {
+				if (Main.getInstance().getFinalSpaces().contains(actualPoint)) {
 					found = true;
 				} else {
 					ArrayList<Point> neighbours = getNeighbours(actualPoint);
 					for (int i = 0; i < neighbours.size(); i++) {
 						double newCost = costSoFar[actualPoint.x][actualPoint.y].doubleValue()
-								+ (double) Main.getWeightedGraph()[neighbours.get(i).x][neighbours.get(i).y]
+								+ (double) Main.getInstance().getWeightedGraph()[neighbours.get(i).x][neighbours.get(i).y]
 										.getWeight();
 						if (costSoFar[neighbours.get(i).x][neighbours.get(i).y] == null
 								|| newCost < costSoFar[neighbours.get(i).x][neighbours.get(i).y]) {

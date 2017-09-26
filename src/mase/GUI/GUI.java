@@ -10,8 +10,8 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 public class GUI extends JFrame {
@@ -19,14 +19,15 @@ public class GUI extends JFrame {
 	private static final long serialVersionUID = 1L;
 	protected final JFrame myInstance;
 	protected final JPanel mainContents;
-	protected final JPanel simulationSite;
+	protected final JScrollPane simulationSite;
 	protected final JMenuBar mainMenu;
 	private JMenu file;
 	private JMenuItem config;
 	private JMenuItem exit;
+	private static GUI instance;
 
-	public static Color[][] colors;
-	public static Color[][] auxiliaryColors;
+	private Color[][] colors;
+	private Color[][] auxiliaryColors;
 
 	public static void main(String[] args) {
 		// FIXME for test purposes. Delete this function in the future
@@ -34,12 +35,12 @@ public class GUI extends JFrame {
 			public void run() {
 				GUI thisClass = new GUI();
 				thisClass.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				thisClass.setVisible(true);
+				thisClass.setVisible(false);
 			}
 		});
 	}
 
-	public GUI() {
+	private GUI() {
 		// starting main frame
 		myInstance = this;
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -67,15 +68,19 @@ public class GUI extends JFrame {
 			}
 		});
 		file.add(exit);
-		class SimulationCanvas extends JPanel {
+
+		class SimulationCanvas extends JScrollPane {
 			private static final long serialVersionUID = 1L;
+
 			public SimulationCanvas() {
-				setSize(colors.length, colors[0].length);
+				if (colors != null && colors[0] != null)
+					setSize(colors.length, colors[0].length);
 			}
+
 			public void paint(Graphics g) {
 				super.paint(g);
 				setDoubleBuffered(true);
-				if (colors != null) {
+				if (colors != null && colors[0] != null) {
 					for (int i = 0; i < colors.length; i++) {
 						for (int j = 0; j < colors.length; j++) {
 							if (!auxiliaryColors[i][j].equals(new Color(255, 255, 255))) {
@@ -92,7 +97,8 @@ public class GUI extends JFrame {
 		}
 
 		simulationSite = new SimulationCanvas();
-		
+		simulationSite.setAutoscrolls(true);
+
 		mainContents.add(simulationSite, BorderLayout.CENTER);
 		this.setJMenuBar(mainMenu);
 		this.setContentPane(mainContents);
@@ -100,9 +106,32 @@ public class GUI extends JFrame {
 
 	}
 
+	public static GUI getInstance() {
+		if (instance == null) {
+			instance = new GUI();
+		}
+		return instance;
+	}
+
 	public void repaint2() {
 		simulationSite.repaint();
 		this.repaint();
+	}
+
+	public Color[][] getColors() {
+		return colors;
+	}
+
+	public void setColors(Color[][] colors) {
+		GUI.getInstance().colors = colors;
+	}
+
+	public Color[][] getAuxiliaryColors() {
+		return auxiliaryColors;
+	}
+
+	public void setAuxiliaryColors(Color[][] auxiliaryColors) {
+		GUI.getInstance().auxiliaryColors = auxiliaryColors;
 	}
 
 }
