@@ -30,8 +30,12 @@ public class Main {
 	public static final int DIJKSTRA_STRATEGY = 0;
 	public static final int ASTAR_STRATEGY = 1;
 
-	public static String[] files = { "res/worcwest15.bmp", "res/factory15.bmp", "res/powerline15.bmp",
-			"res/worcwest.csv" };
+	//public static String[] files = { "res/worcwest15.bmp", "res/factory15.bmp", "res/powerline15.bmp",
+	//		"res/worcwest.csv" };
+	public static String[] files = { "res/maze_path.bmp", "res/maze_source.bmp", "res/maze_destination.bmp",
+	"res/maze.csv" };
+
+	
 	// public static String[] files = { "res/mariana/friction.bmp",
 	// "res/mariana/destination.bmp",
 	// "res/mariana/source.bmp", "res/mariana.csv" };
@@ -48,10 +52,10 @@ public class Main {
 	private int[][] paths;
 
 	private long startingTime;
-	private int agentsQuantity = 5;
+	private int agentsQuantity = 1;
 	private AID GRIDManagerAddress;
 	private AID[] agentsAddresses = new AID[agentsQuantity];
-	private int choosenStrategy = ASTAR_STRATEGY;
+	private int choosenStrategy = DIJKSTRA_STRATEGY;
 	private boolean debug = true;
 	private boolean optimize = false;
 
@@ -61,7 +65,7 @@ public class Main {
 	private int width;
 	private int height;
 
-	private int breadth = 5;
+	private int breadth = 0;
 
 	public Main() {
 	}

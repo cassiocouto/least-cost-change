@@ -35,9 +35,10 @@ public class TrackerAgent extends Agent {
 		if (Main.getInstance().getChoosenStrategy() == Main.DIJKSTRA_STRATEGY) {
 			this.addBehaviour(new DijkstraPathFind());
 		} else {
-			//this.addBehaviour(new AStarPathFind());
-			//this.addBehaviour(new AStarPathFind2(initialSpaces, Main.getInstance().getWeightedGraph()[0].length,
-			//		Main.getInstance().getWeightedGraph().length));
+			// this.addBehaviour(new AStarPathFind());
+			// this.addBehaviour(new AStarPathFind2(initialSpaces,
+			// Main.getInstance().getWeightedGraph()[0].length,
+			// Main.getInstance().getWeightedGraph().length));
 
 		}
 	}
@@ -104,8 +105,9 @@ public class TrackerAgent extends Agent {
 						// Color(255, 255, 255);
 					}
 				}
-				if (Main.getInstance().getGui() != null)
+				if (Main.getInstance().getGui() != null) {
 					Main.getInstance().getGui().repaint2();
+				}
 				sum[initialSpace.x][initialSpace.y] = (long) Main.getInstance()
 						.getWeightedGraph()[initialSpace.x][initialSpace.y].getWeight();
 
@@ -121,35 +123,34 @@ public class TrackerAgent extends Agent {
 						if (visited[actualSpace.x][actualSpace.y]) {
 							continue;
 						}
+						System.out.println("Visitando o ponto " + actualSpace.x + "," + actualSpace.y);
+
 						for (int i = -1; i <= 1; i++) {
 							for (int j = -1; j <= 1; j++) {
-								if (i == 0 && j == 0)
-									continue;
+
 								int nextX = (int) (actualSpace.x + i);
-								if (nextX < 0 || nextX >= height)
-									break;
+								int nextY = (int) (actualSpace.y + j); // if (nextY < 0 || nextY >= width)continue;
 
-								int nextY = (int) (actualSpace.y + j);
-								if (nextY < 0 || nextY >= width)
-									continue;
-
-								if (visited[nextX][nextY])
-									continue;
-
-								long tentative = Main.getInstance().getWeightedGraph()[nextX][nextY].getWeight()
-										+ sum[actualSpace.x][actualSpace.y];
-
-								if (tentative < sum[nextX][nextY]) {
-									sum[nextX][nextY] = tentative;
-									parent[nextX][nextY] = actualSpace;
-									adjacentSpaces.add(new Point(nextX, nextY));
-									// GUI.getInstance().getAuxiliaryColors()[nextX][nextY]
-									// = new Color((float) 0,
-									// (float) 0, (float) 0, (float) 0.5);
+								try {
+									if (visited[nextX][nextY])
+										continue;
+									long tentative = Main.getInstance().getWeightedGraph()[nextX][nextY].getWeight()
+											+ sum[actualSpace.x][actualSpace.y];
+									if (tentative < sum[nextX][nextY]) {
+										sum[nextX][nextY] = tentative;
+										parent[nextX][nextY] = actualSpace;
+										adjacentSpaces.add(new Point(nextX, nextY));
+										// GUI.getInstance().getAuxiliaryColors()[nextX][nextY]
+										// = new Color((float) 0,
+										// (float) 0, (float) 0, (float) 0.5);
+									}
+								} catch (Exception e) {
 								}
 
 							}
 						}
+						System.out.println("O ponto " + actualSpace.x + "," + actualSpace.y + " foi visitado");
+						System.out.println("Melhor soma: " + sum[actualSpace.x][actualSpace.y]);
 						visited[actualSpace.x][actualSpace.y] = true;
 						if (Main.getInstance().getGui() != null)
 							Main.getInstance().getGui().repaint2();
@@ -388,8 +389,7 @@ public class TrackerAgent extends Agent {
 								Point evaluatedPoint = neighbours.remove(0);
 								if (parent[evaluatedPoint.x][evaluatedPoint.y] == null
 								/*
-								 * || sumWithHeuristics[evaluatedPoint.x][
-								 * evaluatedPoint.y] > minimum
+								 * || sumWithHeuristics[evaluatedPoint.x][ evaluatedPoint.y] > minimum
 								 */) {
 									sum[evaluatedPoint.x][evaluatedPoint.y] = neighboursCosts.remove(0);
 
@@ -453,6 +453,7 @@ public class TrackerAgent extends Agent {
 			return Math.sqrt((Math.pow(a.x - b.x, 2)) + (Math.pow(a.y - b.y, 2)));
 
 		}
+
 		public void retrievePath() {
 
 			minimumCost = sum[finalSpace.x][finalSpace.y];
