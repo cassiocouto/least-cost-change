@@ -10,7 +10,6 @@ import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import mase.GUI.GUI;
-import mase.behaviours.AStarPathFind2;
 import mase.main.Main;
 
 public class TrackerAgent extends Agent {
@@ -37,8 +36,8 @@ public class TrackerAgent extends Agent {
 			this.addBehaviour(new DijkstraPathFind());
 		} else {
 			//this.addBehaviour(new AStarPathFind());
-			this.addBehaviour(new AStarPathFind2(initialSpaces, Main.getInstance().getWeightedGraph()[0].length,
-					Main.getInstance().getWeightedGraph().length));
+			//this.addBehaviour(new AStarPathFind2(initialSpaces, Main.getInstance().getWeightedGraph()[0].length,
+			//		Main.getInstance().getWeightedGraph().length));
 
 		}
 	}

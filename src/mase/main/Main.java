@@ -30,10 +30,11 @@ public class Main {
 	public static final int DIJKSTRA_STRATEGY = 0;
 	public static final int ASTAR_STRATEGY = 1;
 
-	// public static String[] files = { "res/worcwest15.bmp",
-	// "res/factory15.bmp", "res/powerline15.bmp", "res/worcwest.csv" };
-	public static String[] files = { "res/mariana/friction.bmp", "res/mariana/destination.bmp",
-			"res/mariana/source.bmp", "res/mariana.csv" };
+	public static String[] files = { "res/worcwest15.bmp", "res/factory15.bmp", "res/powerline15.bmp",
+			"res/worcwest.csv" };
+	// public static String[] files = { "res/mariana/friction.bmp",
+	// "res/mariana/destination.bmp",
+	// "res/mariana/source.bmp", "res/mariana.csv" };
 
 	private String worcwest;
 	private String factory;
@@ -45,8 +46,7 @@ public class Main {
 	private ArrayList<Point> finalSpaces;
 	private Point bestFinalSpace;
 	private int[][] paths;
-	
-	
+
 	private long startingTime;
 	private int agentsQuantity = 5;
 	private AID GRIDManagerAddress;
@@ -208,11 +208,11 @@ public class Main {
 			ioe.printStackTrace();
 		}
 	}
-	
-	public void initPaths(){
+
+	public void initPaths() {
 		paths = new int[height][width];
-		for(int i = 0; i < height; i++){
-			for(int j = 0; j < width; j++){
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
 				paths[i][j] = -1;
 			}
 		}
@@ -414,8 +414,8 @@ public class Main {
 		}
 		return bestFinalSpace;
 	}
-	
-	public synchronized void setPath(int id, int i, int j){
+
+	public synchronized void setPath(int id, int i, int j) {
 		paths[i][j] = id;
 	}
 }
