@@ -46,7 +46,7 @@ public class Main {
 	private String classes;
 	HashMap<Color, Integer> classMap;
 	private Cell[][] weightedGraph;
-	private ArrayList<Point> initialSpaces;
+	private ArrayList<Point> initialSpaces; 
 	private ArrayList<Point> finalSpaces;
 	private Point bestFinalSpace;
 	private int[][] paths;
