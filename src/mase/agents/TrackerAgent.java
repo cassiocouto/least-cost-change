@@ -147,7 +147,7 @@ public class TrackerAgent extends Agent {
 										// (float) 0, (float) 0, (float) 0.5);
 									}
 								} catch (Exception e) {
-									//e.printStackTrace();
+									// e.printStackTrace();
 								}
 
 							}
@@ -186,11 +186,15 @@ public class TrackerAgent extends Agent {
 				Point actualPoint = choosenFinalSpace;
 				do {
 					pathFound.add(actualPoint);
-					actualPoint = parent[actualPoint.x][actualPoint.y];
+					try {
+						actualPoint = parent[actualPoint.x][actualPoint.y];
+					} catch (NullPointerException e) {
+						e.printStackTrace();
+					}
 					GUI.getInstance().getAuxiliaryColors()[actualPoint.x][actualPoint.y] = new Color(0, 0, 0);
 					if (Main.getInstance().getGui() != null)
 						Main.getInstance().getGui().repaint2();
-				} while (actualPoint != initialSpace);
+				} while (!actualPoint.equals(initialSpace));
 				pathFound.add(actualPoint);
 			}
 		}
