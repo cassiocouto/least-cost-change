@@ -11,6 +11,7 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import mase.GUI.GUI;
 import mase.main.Main;
+import mase.util.PriorityQueue;
 
 public class TrackerAgent extends Agent {
 
@@ -50,8 +51,8 @@ public class TrackerAgent extends Agent {
 		private Long[][] sum;
 		private Point[][] parent;
 		private Point initialSpace;
-		private ArrayList<Point> actualSpaces;
-		private ArrayList<Point> adjacentSpaces;
+		private PriorityQueue actualSpaces;
+		private PriorityQueue adjacentSpaces;
 		private int height;
 		private int width;
 
@@ -113,17 +114,16 @@ public class TrackerAgent extends Agent {
 
 				visited = new boolean[height][width];
 
-				actualSpaces = new ArrayList<Point>();
-				adjacentSpaces = new ArrayList<Point>();
+				actualSpaces = new PriorityQueue();
+				adjacentSpaces = new PriorityQueue();
 
-				actualSpaces.add(initialSpace);
+				actualSpaces.add(0, initialSpace);
 				do {
-					for (Point actualSpace : actualSpaces) {
-
+					for (int aux = 0; aux < actualSpaces.size(); aux++) {
+						Point actualSpace = (Point) actualSpaces.get(aux);
 						if (visited[actualSpace.x][actualSpace.y]) {
 							continue;
 						}
-						System.out.println("Visitando o ponto " + actualSpace.x + "," + actualSpace.y);
 
 						for (int i = -1; i <= 1; i++) {
 							for (int j = -1; j <= 1; j++) {
@@ -139,26 +139,28 @@ public class TrackerAgent extends Agent {
 									if (tentative < sum[nextX][nextY]) {
 										sum[nextX][nextY] = tentative;
 										parent[nextX][nextY] = actualSpace;
-										adjacentSpaces.add(new Point(nextX, nextY));
+										if (!adjacentSpaces.contains(new Point(nextX, nextY))) {
+											adjacentSpaces.add(tentative, new Point(nextX, nextY));
+										}
 										// GUI.getInstance().getAuxiliaryColors()[nextX][nextY]
 										// = new Color((float) 0,
 										// (float) 0, (float) 0, (float) 0.5);
 									}
 								} catch (Exception e) {
+									//e.printStackTrace();
 								}
 
 							}
 						}
-						System.out.println("O ponto " + actualSpace.x + "," + actualSpace.y + " foi visitado");
-						System.out.println("Melhor soma: " + sum[actualSpace.x][actualSpace.y]);
 						visited[actualSpace.x][actualSpace.y] = true;
 						if (Main.getInstance().getGui() != null)
 							Main.getInstance().getGui().repaint2();
 						// myAgent.doWait(1);
 					}
-					actualSpaces = new ArrayList<Point>();
+					actualSpaces = new PriorityQueue();
 					actualSpaces.addAll(adjacentSpaces);
-					adjacentSpaces = new ArrayList<Point>();
+					System.out.println(actualSpaces);
+					adjacentSpaces = new PriorityQueue();
 				} while (actualSpaces.size() != 0);
 				retrievePath();
 			}

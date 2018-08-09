@@ -1,8 +1,8 @@
 package main.auxiliar;
 
 public class MazeCreator {
-	public static int height = 4;
-	public static int width = 4;
+	public static int height = 1000;
+	public static int width = 1000;
 
 	public static void main(String[] args) {
 		Maze m = createMaze1();
