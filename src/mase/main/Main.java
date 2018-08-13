@@ -30,8 +30,8 @@ public class Main {
 	public static final int DIJKSTRA_STRATEGY = 0;
 	public static final int ASTAR_STRATEGY = 1;
 
-	public static String[] files = { "res/worcwest15.bmp", "res/factory15.bmp", "res/powerline15.bmp",
-			"res/worcwest.csv" };
+	 public static String[] files = { "res/worcwest15.bmp", "res/factory15.bmp", "res/powerline15.bmp",
+	 		"res/worcwest.csv" };
 	// public static String[] files = { "res/maze_path.bmp", "res/maze_source.bmp",
 	// "res/maze_destination.bmp",
 	// "res/maze.csv" };
@@ -421,5 +421,13 @@ public class Main {
 
 	public synchronized void setPath(int id, int i, int j) {
 		paths[i][j] = id;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
 	}
 }

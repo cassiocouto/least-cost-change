@@ -11,7 +11,7 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import mase.GUI.GUI;
 import mase.main.Main;
-import mase.util.PriorityQueue;
+import mase.behaviours.DijkstraPathFind;
 
 public class TrackerAgent extends Agent {
 
@@ -34,7 +34,8 @@ public class TrackerAgent extends Agent {
 			System.out.println(getLocalName() + ": Started. Received " + initialSpaces.size() + " positions.");
 		}
 		if (Main.getInstance().getChoosenStrategy() == Main.DIJKSTRA_STRATEGY) {
-			this.addBehaviour(new DijkstraPathFind());
+			this.addBehaviour(new DijkstraPathFind(initialSpaces, finalSpaces, Main.getInstance().getHeight(),
+					Main.getInstance().getWidth()));
 		} else {
 			// this.addBehaviour(new AStarPathFind());
 			// this.addBehaviour(new AStarPathFind2(initialSpaces,
@@ -42,163 +43,6 @@ public class TrackerAgent extends Agent {
 			// Main.getInstance().getWeightedGraph().length));
 
 		}
-	}
-
-	private class DijkstraPathFind extends CyclicBehaviour {
-
-		private static final long serialVersionUID = 1L;
-		private boolean[][] visited;
-		private Long[][] sum;
-		private Point[][] parent;
-		private Point initialSpace;
-		private PriorityQueue actualSpaces;
-		private PriorityQueue adjacentSpaces;
-		private int height;
-		private int width;
-
-		private ArrayList<Point> pathFound;
-		private long minimumCost = Long.MAX_VALUE;
-
-		public DijkstraPathFind() {
-			height = Main.getInstance().getWeightedGraph().length;
-			width = Main.getInstance().getWeightedGraph()[0].length;
-			parent = new Point[height][width];
-		}
-
-		public void action() {
-			if (initialSpaces.size() == 0) {
-				if (Main.getInstance().isDebug()) {
-					// System.out.println(getLocalName() + ": sending proposal
-					// to manager. My proposal is " + minimumCost);
-				}
-				ACLMessage m = new ACLMessage(ACLMessage.PROPOSE);
-				m.addReceiver(Main.getInstance().getGRIDManagerAddress());
-				m.setContent(minimumCost + "");
-				myAgent.send(m);
-				myAgent.doWait();
-
-				m = myAgent.receive();
-				if (m.getPerformative() == ACLMessage.ACCEPT_PROPOSAL) {
-					if (Main.getInstance().isDebug()) {
-						System.out.println(getLocalName() + ": My proposal won!");
-					}
-					m = new ACLMessage(ACLMessage.INFORM);
-					m.addReceiver(Main.getInstance().getGRIDManagerAddress());
-					try {
-						m.setContentObject(pathFound);
-						myAgent.send(m);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-
-				}
-
-				myAgent.doDelete();
-
-			} else {
-				initialSpace = initialSpaces.remove(0);
-
-				sum = new Long[height][width];
-				for (int i = 0; i < height; i++) {
-					for (int j = 0; j < width; j++) {
-						sum[i][j] = Long.MAX_VALUE;
-						// GUI.getInstance().getAuxiliaryColors()[i][j] = new
-						// Color(255, 255, 255);
-					}
-				}
-				if (Main.getInstance().getGui() != null) {
-					Main.getInstance().getGui().repaint2();
-				}
-				sum[initialSpace.x][initialSpace.y] = (long) Main.getInstance()
-						.getWeightedGraph()[initialSpace.x][initialSpace.y].getWeight();
-
-				visited = new boolean[height][width];
-
-				actualSpaces = new PriorityQueue();
-				adjacentSpaces = new PriorityQueue();
-
-				actualSpaces.add(0, initialSpace);
-				do {
-					for (int aux = 0; aux < actualSpaces.size(); aux++) {
-						Point actualSpace = (Point) actualSpaces.get(aux);
-						if (visited[actualSpace.x][actualSpace.y]) {
-							continue;
-						}
-
-						for (int i = -1; i <= 1; i++) {
-							for (int j = -1; j <= 1; j++) {
-
-								int nextX = (int) (actualSpace.x + i);
-								int nextY = (int) (actualSpace.y + j); // if (nextY < 0 || nextY >= width)continue;
-
-								try {
-									if (visited[nextX][nextY])
-										continue;
-									long tentative = Main.getInstance().getWeightedGraph()[nextX][nextY].getWeight()
-											+ sum[actualSpace.x][actualSpace.y];
-									if (tentative < sum[nextX][nextY]) {
-										sum[nextX][nextY] = tentative;
-										parent[nextX][nextY] = actualSpace;
-										if (!adjacentSpaces.contains(new Point(nextX, nextY))) {
-											adjacentSpaces.add(tentative, new Point(nextX, nextY));
-										}
-										// GUI.getInstance().getAuxiliaryColors()[nextX][nextY]
-										// = new Color((float) 0,
-										// (float) 0, (float) 0, (float) 0.5);
-									}
-								} catch (Exception e) {
-									// e.printStackTrace();
-								}
-
-							}
-						}
-						visited[actualSpace.x][actualSpace.y] = true;
-						if (Main.getInstance().getGui() != null)
-							Main.getInstance().getGui().repaint2();
-						// myAgent.doWait(1);
-					}
-					actualSpaces = new PriorityQueue();
-					actualSpaces.addAll(adjacentSpaces);
-					System.out.println(actualSpaces);
-					adjacentSpaces = new PriorityQueue();
-				} while (actualSpaces.size() != 0);
-				retrievePath();
-			}
-		}
-
-		public void retrievePath() {
-
-			long currentMinimumSum = Long.MAX_VALUE;
-			Point choosenFinalSpace = null;
-
-			for (Point finalSpace : finalSpaces) {
-				if (currentMinimumSum > sum[finalSpace.x][finalSpace.y]) {
-					currentMinimumSum = sum[finalSpace.x][finalSpace.y];
-					choosenFinalSpace = finalSpace;
-				}
-			}
-
-			if (minimumCost < currentMinimumSum) {
-				return;
-			} else {
-				minimumCost = currentMinimumSum;
-				pathFound = new ArrayList<Point>();
-				Point actualPoint = choosenFinalSpace;
-				do {
-					pathFound.add(actualPoint);
-					try {
-						actualPoint = parent[actualPoint.x][actualPoint.y];
-					} catch (NullPointerException e) {
-						e.printStackTrace();
-					}
-					GUI.getInstance().getAuxiliaryColors()[actualPoint.x][actualPoint.y] = new Color(0, 0, 0);
-					if (Main.getInstance().getGui() != null)
-						Main.getInstance().getGui().repaint2();
-				} while (!actualPoint.equals(initialSpace));
-				pathFound.add(actualPoint);
-			}
-		}
-
 	}
 
 	public void orderInitialSpacesByDistance() {
