@@ -46,7 +46,7 @@ public class GRIDManager extends Agent {
 		if (main.getChoosenStrategy() == Main.DIJKSTRA_STRATEGY) {
 			list.addSubBehaviour(new WaitForProposals());
 		} else {
-			list.addSubBehaviour(new WaitForPaths());
+			list.addSubBehaviour(new WaitForProposals());
 		}
 		addBehaviour(list);
 

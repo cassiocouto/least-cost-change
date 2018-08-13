@@ -23,11 +23,15 @@ public class PriorityQueue {
 			priority.add(elementPriority);
 			value.add(element);
 			return;
-		} else if (value.contains(element)) {
-			int index = value.indexOf(element);
-			Number curr_priority = priority.get(index);
-			if (curr_priority.doubleValue() > elementPriority.doubleValue()) {
-				this.remove((int) index);
+		} else if (priority.size() == 1) {
+			if (priority.get(0).doubleValue() <= elementPriority.doubleValue()) {
+				priority.add(elementPriority);
+				value.add(element);
+				return;
+			} else {
+				priority.add(0, elementPriority);
+				value.add(0, element);
+				return;
 			}
 		}
 
@@ -35,18 +39,71 @@ public class PriorityQueue {
 			priority.add(elementPriority);
 			value.add(element);
 		} else {
-			for (int i = 0; i < priority.size(); i++) {
-				if (elementPriority.doubleValue() >= priority.get(i).doubleValue()) {
-					continue;
-				} else {
+			binaryInsert(elementPriority, element);
+		}
 
-					priority.add(i, elementPriority);
-					value.add(i, element);
-					break;
-				}
+	}
+
+	public void add(Number elementPriority, Object element, int inferiorLimit) {
+		if (priority.size() == 0) {
+			priority.add(elementPriority);
+			value.add(element);
+			return;
+		} else if (priority.size() == 1) {
+			if (priority.get(0).doubleValue() <= elementPriority.doubleValue()) {
+				priority.add(elementPriority);
+				value.add(element);
+				return;
+			} else {
+				priority.add(0, elementPriority);
+				value.add(0, element);
+				return;
 			}
 		}
 
+		if (elementPriority.doubleValue() >= priority.get(priority.size() - 1).doubleValue()) {
+			priority.add(elementPriority);
+			value.add(element);
+		} else {
+			binaryInsert(elementPriority, element, inferiorLimit);
+		}
+
+	}
+
+	private void binaryInsert(Number elementPriority, Object element) {
+		int inferior = 0;
+		int superior = this.size() - 1;
+		int delta = superior - inferior;
+
+		while (delta > 1) {
+			int index = (int) (Math.floor((inferior + superior) / 2d));
+			if (priority.get(index).doubleValue() > elementPriority.doubleValue()) {
+				superior = index;
+			} else {
+				inferior = index;
+			}
+			delta = superior - inferior;
+		}
+		priority.add(superior, elementPriority);
+		value.add(superior, element);
+	}
+
+	private void binaryInsert(Number elementPriority, Object element, int inferiorLimit) {
+		int inferior = inferiorLimit;
+		int superior = this.size() - 1;
+		int delta = superior - inferior;
+
+		while (delta > 1) {
+			int index = (int) (Math.floor((inferior + superior) / 2d));
+			if (priority.get(index).doubleValue() > elementPriority.doubleValue()) {
+				superior = index;
+			} else {
+				inferior = index;
+			}
+			delta = superior - inferior;
+		}
+		priority.add(superior, elementPriority);
+		value.add(superior, element);
 	}
 
 	public int size() {
@@ -65,7 +122,12 @@ public class PriorityQueue {
 		for (int i = 0; i < q.size(); i++) {
 			this.add(q.getPriority().get(i), q.getValue().get(i));
 		}
+	}
 
+	public void addAll(PriorityQueue q, int inferiorLimit) {
+		for (int i = 0; i < q.size(); i++) {
+			this.add(q.getPriority().get(i), q.getValue().get(i), inferiorLimit);
+		}
 	}
 
 	public ArrayList<Number> getPriority() {

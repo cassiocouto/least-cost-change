@@ -6,17 +6,20 @@ import java.util.ArrayList;
 import mase.main.Main;
 import mase.util.PriorityQueue;
 
-public class DijkstraPathFind extends PathFind {
+public class AStarPathFind extends PathFind {
 
-	private static final long serialVersionUID = 1L;
+	private Point myFinalSpace;
 
-	public DijkstraPathFind(ArrayList<Point> initialSpaces, ArrayList<Point> finalSpaces, int height, int width) {
+	public AStarPathFind(ArrayList<Point> initialSpaces, ArrayList<Point> finalSpaces, int height, int width) {
 		super(initialSpaces, finalSpaces, height, width);
 	}
 
-	public void findThePath() {
+	private static final long serialVersionUID = 1L;
 
+	public void findThePath() {
 		initialSpace = initialSpaces.remove(0);
+		myFinalSpace = chooseFinalPoint();
+
 		sum = new Long[height][width];
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
@@ -32,7 +35,6 @@ public class DijkstraPathFind extends PathFind {
 		adjacentSpaces = new PriorityQueue();
 
 		actualSpaces.add(0, initialSpace);
-
 		for (int aux = 0; !isGoalFound(visited); aux++) {
 			Point actualSpace = (Point) actualSpaces.get(aux);
 			if (visited[actualSpace.x][actualSpace.y]) {
@@ -56,7 +58,7 @@ public class DijkstraPathFind extends PathFind {
 						if (tentative < sum[nextX][nextY]) {
 							sum[nextX][nextY] = tentative;
 							parent[nextX][nextY] = actualSpace;
-							adjacentSpaces.add(tentative, new Point(nextX, nextY));
+							adjacentSpaces.add(tentative + getHeuristic(actualSpace), new Point(nextX, nextY));
 						}
 					} catch (Exception e) {
 					}
@@ -73,6 +75,24 @@ public class DijkstraPathFind extends PathFind {
 		if (isGoalFound(visited)) {
 			retrievePath();
 		}
+	}
+
+	public Point chooseFinalPoint() {
+		double dist = Double.MAX_VALUE;
+		Point choosen = null;
+		for (Point finalSpace : finalSpaces) {
+			double curr_dist = Point.distance(finalSpace.x, finalSpace.y, initialSpace.x, initialSpace.y);
+			if (dist > curr_dist) {
+				dist = curr_dist;
+				choosen = finalSpace;
+			}
+		}
+
+		return choosen;
+	}
+
+	public double getHeuristic(Point p) {
+		return Point.distance(myFinalSpace.x, myFinalSpace.y, p.x, p.y);
 	}
 
 }
