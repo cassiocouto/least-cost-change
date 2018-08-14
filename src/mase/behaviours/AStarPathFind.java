@@ -8,7 +8,7 @@ import mase.util.PriorityQueue;
 
 public class AStarPathFind extends PathFind {
 
-	private Point myFinalSpace;
+	protected Point myFinalSpace;
 
 	public AStarPathFind(ArrayList<Point> initialSpaces, ArrayList<Point> finalSpaces, int height, int width) {
 		super(initialSpaces, finalSpaces, height, width);

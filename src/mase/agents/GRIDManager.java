@@ -78,6 +78,42 @@ public class GRIDManager extends Agent {
 
 	}
 
+	class AddDelayedAgents extends OneShotBehaviour {
+
+		private static final long serialVersionUID = 1L;
+		private HashMap<String, Agent> agents;
+		private int agentNr;
+		private long interval;
+
+		public AddDelayedAgents(HashMap<String, Agent> agents, int agentNr, long interval) {
+			this.agents = agents;
+			this.agentNr = agentNr;
+			this.interval = interval;
+		}
+
+		public void action() {
+			Set<String> keys = agents.keySet();
+			int count = 0;
+			for (String nickname : keys) {
+				Agent a = agents.get(nickname);
+				count++;
+				if (count % agentNr == 0) {
+					count = 0;
+					myAgent.doWait(interval);
+				}
+				try {
+					this.myAgent.getContainerController().acceptNewAgent(nickname, a);
+					this.myAgent.getContainerController().getAgent(nickname).start();
+				} catch (StaleProxyException e) {
+					e.printStackTrace();
+				} catch (ControllerException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+	}
+
 	private class WaitForProposals extends OneShotBehaviour {
 
 		private static final long serialVersionUID = 1L;
@@ -128,14 +164,14 @@ public class GRIDManager extends Agent {
 			myAgent.doWait();
 			ACLMessage m = myAgent.receive();
 			long finishingTime = System.currentTimeMillis();
-			ArrayList<ArrayList<Point>>foundPaths = new ArrayList<>();
+			ArrayList<ArrayList<Point>> foundPaths = new ArrayList<>();
 			try {
 				foundPaths.add((ArrayList<Point>) m.getContentObject());
 			} catch (UnreadableException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 			System.out.println("Agent quantity = " + Main.getInstance().getAgentsQuantity());
 			System.out.println("Minimum cost = " + bestMinimumCost);
 			System.out.println("Total time = " + (finishingTime - Main.getInstance().getStartingTime()));
@@ -157,7 +193,7 @@ public class GRIDManager extends Agent {
 			ArrayList<ArrayList<Point>> foundPaths = new ArrayList<ArrayList<Point>>();
 			while (count < main.getAgentsQuantity()) {
 				ACLMessage m = myAgent.blockingReceive();
-				//int receivedbestCost = Integer.parseInt(m.getContent());
+				// int receivedbestCost = Integer.parseInt(m.getContent());
 				ArrayList<ArrayList<Point>> paths;
 				try {
 					paths = (ArrayList<ArrayList<Point>>) m.getContentObject();
@@ -174,7 +210,7 @@ public class GRIDManager extends Agent {
 				count++;
 			}
 			long finishingTime = System.currentTimeMillis();
-			
+
 			Main.getInstance().writeImage("teste.bmp", foundPaths);
 
 			System.out.println("Agent quantity = " + Main.getInstance().getAgentsQuantity());

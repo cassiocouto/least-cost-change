@@ -1,1 +1,1 @@
-http://DESKTOP-IVL1NVJ:7778/acc
+http://192.168.25.12:7778/acc

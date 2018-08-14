@@ -29,16 +29,17 @@ public class Main {
 
 	public static final int DIJKSTRA_STRATEGY = 0;
 	public static final int ASTAR_STRATEGY = 1;
+	public static final int COOPERATIVE_ASTAR_STRATEGY = 1;
 
-	  public static String[] files = { "res/worcwest15.bmp", "res/factory15.bmp",
-	  "res/powerline15.bmp",
-	  "res/worcwest.csv" };
+	//  public static String[] files = { "res/worcwest15.bmp", "res/factory15.bmp",
+	//  "res/powerline15.bmp",
+	//  "res/worcwest.csv" };
 	//public static String[] files = { "res/maze_path.bmp", "res/maze_source.bmp", "res/maze_destination.bmp",
 	//		"res/maze.csv" };
 
-	// public static String[] files = { "res/mariana/friction.bmp",
-	// "res/mariana/destination.bmp",
-	// "res/mariana/source.bmp", "res/mariana.csv" };
+	 public static String[] files = { "res/mariana_friction.bmp",
+	 "res/mariana_destination.bmp",
+	 "res/mariana_source.bmp", "res/mariana.csv" };
 
 	private String worcwest;
 	private String factory;
@@ -46,6 +47,7 @@ public class Main {
 	private String classes;
 	HashMap<Color, Integer> classMap;
 	private Cell[][] weightedGraph;
+	
 	private ArrayList<Point> initialSpaces;
 	private ArrayList<Point> finalSpaces;
 	private Point bestFinalSpace;
