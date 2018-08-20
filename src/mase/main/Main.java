@@ -29,35 +29,33 @@ public class Main {
 
 	public static final int DIJKSTRA_STRATEGY = 0;
 	public static final int ASTAR_STRATEGY = 1;
-	public static final int COOPERATIVE_ASTAR_STRATEGY = 1;
+	public static final int COOPERATIVE_ASTAR_STRATEGY = 2;
 
-	//  public static String[] files = { "res/worcwest15.bmp", "res/factory15.bmp",
-	//  "res/powerline15.bmp",
-	//  "res/worcwest.csv" };
-	//public static String[] files = { "res/maze_path.bmp", "res/maze_source.bmp", "res/maze_destination.bmp",
-	//		"res/maze.csv" };
+	public static String[][] all_files = {
+			{ "res/worcwest15.bmp", "res/factory15.bmp", "res/powerline15.bmp", "res/worcwest.csv" },
+			{ "res/maze_path.bmp", "res/maze_source.bmp", "res/maze_destination.bmp", "res/maze.csv" },
+			{ "res/mariana_friction.bmp", "res/mariana_destination.bmp", "res/mariana_source.bmp",
+					"res/mariana.csv" } };
 
-	 public static String[] files = { "res/mariana_friction.bmp",
-	 "res/mariana_destination.bmp",
-	 "res/mariana_source.bmp", "res/mariana.csv" };
+	public static String[] files = all_files[2];
 
 	private String worcwest;
 	private String factory;
 	private String powerline;
 	private String classes;
 	HashMap<Color, Integer> classMap;
-	private Cell[][] weightedGraph;
-	
+	private Cell[][] graph;
+
 	private ArrayList<Point> initialSpaces;
 	private ArrayList<Point> finalSpaces;
 	private Point bestFinalSpace;
 	private int[][] paths;
 
 	private long startingTime;
-	private int agentsQuantity = 10;
+	private int agentsQuantity = 1;
 	private AID GRIDManagerAddress;
 	private AID[] agentsAddresses = new AID[agentsQuantity];
-	private int choosenStrategy = ASTAR_STRATEGY;
+	private int choosenStrategy = DIJKSTRA_STRATEGY;
 	private boolean debug = true;
 	private boolean optimize = false;
 
@@ -129,7 +127,7 @@ public class Main {
 			imgWorcwest = ImageIO.read(new File(worcwest));
 			height = imgWorcwest.getHeight();
 			width = imgWorcwest.getWidth();
-			weightedGraph = new Cell[height][width];
+			graph = new Cell[height][width];
 
 			if (isGUIActive) {
 				GUI.getInstance().setColors(new Color[height][width]);
@@ -145,9 +143,9 @@ public class Main {
 					}
 					Integer weight = classMap.get(c);
 					if (weight != null) {
-						weightedGraph[i][j] = new Cell(weight, new Point(i, j));
+						graph[i][j] = new Cell(weight, new Point(i, j));
 					} else {
-						weightedGraph[i][j] = new Cell(Integer.MAX_VALUE, new Point(i, j));
+						graph[i][j] = new Cell(Integer.MAX_VALUE, new Point(i, j));
 					}
 				}
 			}
@@ -177,8 +175,7 @@ public class Main {
 					int green = cFactory.getGreen();
 					int blue = cFactory.getBlue();
 
-					if (red != 255 && green != 255 && blue != 255
-							&& weightedGraph[i][j].getWeight() != Integer.MAX_VALUE) {
+					if (red != 255 && green != 255 && blue != 255 && graph[i][j].getWeight() != Integer.MAX_VALUE) {
 						initialSpaces.add(new Point(i, j));
 						if (isGUIActive) {
 							GUI.getInstance().getColors()[i][j] = new Color(255, 51, 163);
@@ -191,8 +188,7 @@ public class Main {
 					green = cPowerline.getGreen();
 					blue = cPowerline.getBlue();
 
-					if (red != 255 && green != 255 && blue != 255
-							&& weightedGraph[i][j].getWeight() != Integer.MAX_VALUE) {
+					if (red != 255 && green != 255 && blue != 255 && graph[i][j].getWeight() != Integer.MAX_VALUE) {
 						finalSpaces.add(new Point(i, j));
 						if (isGUIActive) {
 							GUI.getInstance().getColors()[i][j] = new Color(255, 51, 163);
@@ -221,6 +217,61 @@ public class Main {
 			for (int j = 0; j < width; j++) {
 				paths[i][j] = -1;
 			}
+		}
+	}
+
+	public void writeImage(String name) {
+		try {
+			BufferedImage worcwestImg = ImageIO.read(new File(worcwest));
+
+			BufferedImage finalImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+			for (int i = 0; i < width; i++) {
+				for (int j = 0; j < height; j++) {
+					finalImg.setRGB(i, j, worcwestImg.getRGB(i, j));
+				}
+			}
+
+			for (int a = 0; a < agentsQuantity; a++) {
+				AID currAID = agentsAddresses[a];
+
+				Random rand = new Random();
+				Color color = new Color(rand.nextInt(0xFFFFFF));
+
+				for (int x = 0; x < graph.length; x++) {
+					for (int y = 0; y < graph[x].length; y++) {
+						if (graph[x][y].getTrackerId() != null && graph[x][y].getTrackerId().equals(currAID)) {
+							for (int i = (-1 * breadth); i <= breadth; i++) {
+								for (int j = (-1 * breadth); j <= breadth; j++) {
+									try {
+										finalImg.setRGB(x + i, y + j, color.getRGB());
+									} catch (ArrayIndexOutOfBoundsException e) {
+										// ignore
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			for (int i = 0; i < initialSpaces.size(); i++) {
+				finalImg.setRGB(initialSpaces.get(i).x, initialSpaces.get(i).y, Color.CYAN.getRGB());
+			}
+
+			for (int i = 0; i < finalSpaces.size(); i++) {
+				finalImg.setRGB(finalSpaces.get(i).x, finalSpaces.get(i).y, Color.YELLOW.getRGB());
+			}
+
+			try {
+				ImageIO.write(finalImg, "bmp", new File(name));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 
@@ -294,8 +345,8 @@ public class Main {
 		// gui.setVisible(false);
 	}
 
-	public Cell[][] getWeightedGraph() {
-		return weightedGraph;
+	public Cell[][] getGraph() {
+		return graph;
 	}
 
 	public ArrayList<Point> getInitialSpaces() {
@@ -304,10 +355,6 @@ public class Main {
 
 	public ArrayList<Point> getFinalSpaces() {
 		return finalSpaces;
-	}
-
-	public void setWeightedGraph(Cell[][] weightedGraph) {
-		this.weightedGraph = weightedGraph;
 	}
 
 	public void setInitialSpaces(ArrayList<Point> initialSpaces) {

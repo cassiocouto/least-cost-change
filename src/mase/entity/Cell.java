@@ -2,12 +2,14 @@ package mase.entity;
 
 import java.awt.Point;
 
+import jade.core.AID;
+
 public class Cell {
 	private int weight;
 	private Point position;
-	private int discoverer = -1;
-	
-	public Cell(int weight, Point position){
+	private AID trackerId = null;
+
+	public Cell(int weight, Point position) {
 		this.weight = weight;
 		this.position = position;
 	}
@@ -19,14 +21,15 @@ public class Cell {
 	public Point getPosition() {
 		return position;
 	}
-	
-	public void setDiscoverer(int agentid) {
-		if(discoverer == -1) {
-			discoverer = agentid;
+
+	public AID getTrackerId() {
+		return trackerId;
+	}
+
+	public synchronized void setTrackerId(AID trackerId) {
+		if (this.trackerId == null) {
+			this.trackerId = trackerId;
 		}
 	}
-	
-	public int getDiscoverer() {
-		return discoverer;
-	}
+
 }

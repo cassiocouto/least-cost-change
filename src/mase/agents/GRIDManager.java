@@ -45,8 +45,10 @@ public class GRIDManager extends Agent {
 
 		if (main.getChoosenStrategy() == Main.DIJKSTRA_STRATEGY) {
 			list.addSubBehaviour(new WaitForProposals());
-		} else {
+		} else if (main.getChoosenStrategy() == Main.ASTAR_STRATEGY) {
 			list.addSubBehaviour(new WaitForProposals());
+		} else if (main.getChoosenStrategy() == Main.COOPERATIVE_ASTAR_STRATEGY) {
+			list.addSubBehaviour(new WaitForPaths());
 		}
 		addBehaviour(list);
 
@@ -118,6 +120,7 @@ public class GRIDManager extends Agent {
 
 		private static final long serialVersionUID = 1L;
 
+		@SuppressWarnings("unchecked")
 		public void action() {
 			int count = 0;
 			long bestMinimumCost = Long.MAX_VALUE;
@@ -168,7 +171,6 @@ public class GRIDManager extends Agent {
 			try {
 				foundPaths.add((ArrayList<Point>) m.getContentObject());
 			} catch (UnreadableException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -186,35 +188,17 @@ public class GRIDManager extends Agent {
 
 		private static final long serialVersionUID = 1L;
 
-		@SuppressWarnings("unchecked")
 		public void action() {
 			int count = 0;
-			int bestMinimumCost = Integer.MAX_VALUE;
-			ArrayList<ArrayList<Point>> foundPaths = new ArrayList<ArrayList<Point>>();
 			while (count < main.getAgentsQuantity()) {
-				ACLMessage m = myAgent.blockingReceive();
-				// int receivedbestCost = Integer.parseInt(m.getContent());
-				ArrayList<ArrayList<Point>> paths;
-				try {
-					paths = (ArrayList<ArrayList<Point>>) m.getContentObject();
-					foundPaths.addAll(paths);
-					if (main.isDebug()) {
-						System.out.println(
-								myAgent.getLocalName() + ": Received paths from " + m.getSender().getLocalName());
-					}
-				} catch (UnreadableException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
+				myAgent.blockingReceive();
 				count++;
 			}
 			long finishingTime = System.currentTimeMillis();
 
-			Main.getInstance().writeImage("teste.bmp", foundPaths);
+			Main.getInstance().writeImage("teste.bmp");
 
 			System.out.println("Agent quantity = " + Main.getInstance().getAgentsQuantity());
-			System.out.println("Minimum cost = " + bestMinimumCost);
 			System.out.println("Total time = " + (finishingTime - Main.getInstance().getStartingTime()));
 			System.exit(0);
 

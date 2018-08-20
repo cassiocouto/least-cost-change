@@ -24,6 +24,7 @@ public abstract class PathFind extends CyclicBehaviour {
 	protected int width;
 	protected long minimumCost = Long.MAX_VALUE;
 	protected ArrayList<Point> pathFound;
+	protected Point myFinalSpace;
 
 	public PathFind(ArrayList<Point> initialSpaces, ArrayList<Point> finalSpaces, int height, int width) {
 		this.height = height;
@@ -37,11 +38,11 @@ public abstract class PathFind extends CyclicBehaviour {
 		if (initialSpaces.size() == 0) {
 			bidProposal();
 		} else {
-			findThePath();
+			findThePath(true);
 		}
 	}
 
-	public abstract void findThePath();
+	public abstract void findThePath(boolean findBest);
 
 	public boolean isGoalFound(boolean[][] visited) {
 		for (Point finalSpace : finalSpaces) {
@@ -52,16 +53,7 @@ public abstract class PathFind extends CyclicBehaviour {
 		return false;
 	}
 
-	public void retrievePath() {
-		long currentMinimumSum = Long.MAX_VALUE;
-		Point choosenFinalSpace = null;
-
-		for (Point finalSpace : finalSpaces) {
-			if (currentMinimumSum > sum[finalSpace.x][finalSpace.y]) {
-				currentMinimumSum = sum[finalSpace.x][finalSpace.y];
-				choosenFinalSpace = finalSpace;
-			}
-		}
+	public void retrievePath(long currentMinimumSum, Point choosenFinalSpace) {
 
 		if (minimumCost < currentMinimumSum) {
 			return;
@@ -74,6 +66,14 @@ public abstract class PathFind extends CyclicBehaviour {
 				actualPoint = parent[actualPoint.x][actualPoint.y];
 			}
 			pathFound.add(actualPoint);
+		}
+	}
+
+	public void markPath(Point meetingPoint) {
+		Point actualPoint = meetingPoint;
+		while (actualPoint != null && !actualPoint.equals(initialSpace)) {
+			Main.getInstance().getGraph()[actualPoint.x][actualPoint.y].setTrackerId(myAgent.getAID());
+			actualPoint = parent[actualPoint.x][actualPoint.y];
 		}
 	}
 
@@ -102,5 +102,11 @@ public abstract class PathFind extends CyclicBehaviour {
 
 		myAgent.doDelete();
 	}
+
+	public abstract double getHeuristic(Point p);
+
+	public abstract Point chooseFinalPoint(Point p);
+
+	public abstract boolean pathAlreadyFound(Point p);
 
 }

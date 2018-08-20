@@ -6,8 +6,7 @@ import java.util.Collections;
 
 import jade.core.Agent;
 import mase.main.Main;
-import mase.behaviours.AStarPathFind;
-import mase.behaviours.DijkstraPathFind;
+import mase.behaviours.*;
 
 public class TrackerAgent extends Agent {
 
@@ -16,11 +15,12 @@ public class TrackerAgent extends Agent {
 	private ArrayList<Point> initialSpaces;
 	private ArrayList<Point> finalSpaces;
 
+	private static int messageCounter = 0;
+
 	public TrackerAgent(int id, ArrayList<Point> initialSpaces, ArrayList<Point> finalSpaces) {
 		this.id = id;
 		this.initialSpaces = initialSpaces;
 		this.finalSpaces = finalSpaces;
-		orderInitialSpacesByDistance();
 
 	}
 
@@ -32,10 +32,15 @@ public class TrackerAgent extends Agent {
 		if (Main.getInstance().getChoosenStrategy() == Main.DIJKSTRA_STRATEGY) {
 			this.addBehaviour(new DijkstraPathFind(initialSpaces, finalSpaces, Main.getInstance().getHeight(),
 					Main.getInstance().getWidth()));
-		} else {
-			 this.addBehaviour(new AStarPathFind(initialSpaces, finalSpaces, Main.getInstance().getHeight(),
-						Main.getInstance().getWidth()));
+		} else if (Main.getInstance().getChoosenStrategy() == Main.ASTAR_STRATEGY) {
+			orderInitialSpacesByDistance();
+			this.addBehaviour(new AStarPathFind(initialSpaces, finalSpaces, Main.getInstance().getHeight(),
+					Main.getInstance().getWidth()));
 
+		} else if (Main.getInstance().getChoosenStrategy() == Main.COOPERATIVE_ASTAR_STRATEGY) {
+			orderInitialSpacesByDistance();
+			this.addBehaviour(new CooperativeAStarPathFind(initialSpaces, finalSpaces, Main.getInstance().getHeight(),
+					Main.getInstance().getWidth()));
 		}
 	}
 
@@ -83,5 +88,8 @@ public class TrackerAgent extends Agent {
 		}
 	}
 
-	
+	public static synchronized void printAccountedMessage(String msg) {
+		System.out.println(String.format("%d - %s", messageCounter++, msg));
+	}
+
 }
