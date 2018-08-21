@@ -48,8 +48,8 @@ public class DijkstraPathFind extends PathFind {
 				break;
 			}
 
-			for (int i = -1; i <= 1; i++) {
-				for (int j = -1; j <= 1; j++) {
+			for (int i = -1; !pathAlreadyFound && i <= 1; i++) {
+				for (int j = -1; !pathAlreadyFound && j <= 1; j++) {
 
 					int nextX = (int) (actualSpace.x + i);
 					int nextY = (int) (actualSpace.y + j); // if (nextY < 0 || nextY >= width)continue;
@@ -77,7 +77,9 @@ public class DijkstraPathFind extends PathFind {
 
 				}
 			}
-
+			if(pathAlreadyFound) {
+				continue;
+			}
 			visited[actualSpace.x][actualSpace.y] = true;
 			actualSpaces.addAll(adjacentSpaces, aux);
 			adjacentSpaces = new PriorityQueue();

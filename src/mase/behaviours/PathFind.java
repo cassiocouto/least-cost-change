@@ -70,11 +70,13 @@ public abstract class PathFind extends CyclicBehaviour {
 	}
 
 	public void markPath(Point meetingPoint) {
+		ArrayList<Point> path = new ArrayList<>();
 		Point actualPoint = meetingPoint;
 		while (actualPoint != null && !actualPoint.equals(initialSpace)) {
-			Main.getInstance().getGraph()[actualPoint.x][actualPoint.y].setTrackerId(myAgent.getAID());
+			path.add(actualPoint);
 			actualPoint = parent[actualPoint.x][actualPoint.y];
 		}
+		Main.getInstance().setPath(path, myAgent.getAID());
 	}
 
 	public void bidProposal() {
