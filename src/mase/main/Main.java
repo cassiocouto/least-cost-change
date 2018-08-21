@@ -55,7 +55,8 @@ public class Main {
 	private int agentsQuantity = 1;
 	private AID GRIDManagerAddress;
 	private AID[] agentsAddresses = new AID[agentsQuantity];
-	private int choosenStrategy = DIJKSTRA_STRATEGY;
+	private int choosenStrategy = COOPERATIVE_ASTAR_STRATEGY;
+	private String imgName = "COOPERATIVE_1_AGENT";
 	private boolean debug = true;
 	private boolean optimize = false;
 
@@ -220,7 +221,7 @@ public class Main {
 		}
 	}
 
-	public void writeImage(String name) {
+	public void writeImage() {
 		try {
 			BufferedImage worcwestImg = ImageIO.read(new File(worcwest));
 
@@ -264,7 +265,7 @@ public class Main {
 			}
 
 			try {
-				ImageIO.write(finalImg, "bmp", new File(name));
+				ImageIO.write(finalImg, "bmp", new File(imgName));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -275,7 +276,7 @@ public class Main {
 		}
 	}
 
-	public void writeImage(String name, ArrayList<ArrayList<Point>> paths) {
+	public void writeImage(ArrayList<ArrayList<Point>> paths) {
 		try {
 			BufferedImage worcwestImg = ImageIO.read(new File(worcwest));
 
@@ -311,7 +312,7 @@ public class Main {
 			}
 
 			try {
-				ImageIO.write(finalImg, "bmp", new File(name));
+				ImageIO.write(finalImg, "bmp", new File(imgName));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

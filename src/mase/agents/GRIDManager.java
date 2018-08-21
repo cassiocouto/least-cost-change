@@ -177,7 +177,7 @@ public class GRIDManager extends Agent {
 			System.out.println("Agent quantity = " + Main.getInstance().getAgentsQuantity());
 			System.out.println("Minimum cost = " + bestMinimumCost);
 			System.out.println("Total time = " + (finishingTime - Main.getInstance().getStartingTime()));
-			Main.getInstance().writeImage("teste.bmp", foundPaths);
+			Main.getInstance().writeImage(foundPaths);
 			System.exit(0);
 
 		}
@@ -196,7 +196,7 @@ public class GRIDManager extends Agent {
 			}
 			long finishingTime = System.currentTimeMillis();
 
-			Main.getInstance().writeImage("teste.bmp");
+			Main.getInstance().writeImage();
 
 			System.out.println("Agent quantity = " + Main.getInstance().getAgentsQuantity());
 			System.out.println("Total time = " + (finishingTime - Main.getInstance().getStartingTime()));
