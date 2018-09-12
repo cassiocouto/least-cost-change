@@ -38,56 +38,27 @@ public class DijkstraPathFind extends PathFind {
 		boolean pathAlreadyFound = false;
 		Point meetingPoint = null;
 
+
 		for (int aux = 0; !pathAlreadyFound && !isGoalFound(visited); aux++) {
 			Point actualSpace = (Point) actualSpaces.get(aux);
 
 			if (visited[actualSpace.x][actualSpace.y]) {
 				continue;
 			} else if (findBest && sum[actualSpace.x][actualSpace.y] > minimumCost) {
-				TrackerAgent.printAccountedMessage(myAgent.getLocalName()+": Giving up the position");
+				TrackerAgent.printAccountedMessage(myAgent.getLocalName() + ": Giving up the position");
 				break;
 			}
-
-			for (int i = -1; !pathAlreadyFound && i <= 1; i++) {
-				for (int j = -1; !pathAlreadyFound && j <= 1; j++) {
-
-					int nextX = (int) (actualSpace.x + i);
-					int nextY = (int) (actualSpace.y + j); // if (nextY < 0 || nextY >= width)continue;
-
-					try {
-						if (visited[nextX][nextY]) {
-							continue;
-						} else if (!findBest && pathAlreadyFound(new Point(nextX, nextY))) {
-							TrackerAgent.printAccountedMessage(myAgent.getLocalName()+": Someone else found a path! I'll follow this trail");
-							pathAlreadyFound = true;
-							meetingPoint = new Point(nextX, nextY);
-							parent[nextX][nextY] = actualSpace;
-							continue;
-						}
-						long tentative = Main.getInstance().getGraph()[nextX][nextY].getWeight()
-								+ sum[actualSpace.x][actualSpace.y];
-						if (tentative < sum[nextX][nextY]) {
-							sum[nextX][nextY] = tentative;
-							parent[nextX][nextY] = actualSpace;
-							adjacentSpaces.add(tentative + getHeuristic(new Point(nextX, nextY)),
-									new Point(nextX, nextY));
-						}
-					} catch (Exception e) {
-					}
-
-				}
-			}
-			if(pathAlreadyFound) {
-				continue;
-			}
+			Object[] o = evaluateNeighbours(actualSpace, findBest);
+			pathAlreadyFound = (Boolean) o[0];
+			meetingPoint = (Point) o[1];
+			
 			visited[actualSpace.x][actualSpace.y] = true;
 			actualSpaces.addAll(adjacentSpaces, aux);
 			adjacentSpaces = new PriorityQueue();
-
 		}
-
+ 
 		if (isGoalFound(visited)) {
-			TrackerAgent.printAccountedMessage(myAgent.getLocalName()+": I found a path!");
+			TrackerAgent.printAccountedMessage(myAgent.getLocalName() + ": I found a path!");
 			long currentMinimumSum = Long.MAX_VALUE;
 			Point choosenFinalSpace = null;
 			for (Point finalSpace : finalSpaces) {

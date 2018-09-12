@@ -106,6 +106,50 @@ public class PriorityQueue {
 		value.add(superior, element);
 	}
 
+	private PriorityQueue quickSort(PriorityQueue q, int left, int right) { 
+
+		int pi = partition(q, left, right);
+		
+		q = quickSort(q, left, pi-1);
+		q = quickSort(q, pi, right);
+		
+		return q;
+	}
+
+	private int partition(PriorityQueue q, int left, int right) {
+		double pivot = q.priority.get(right).doubleValue();
+		int i = left - 1;
+
+		for (int j = left; j < right; j++) {
+			double curr = q.priority.get(j).doubleValue();
+			if (curr <= pivot) {
+				i++;
+				double a0 = q.priority.get(i).doubleValue();
+				Object b0 = q.value.get(i);
+				double a1 = q.priority.get(j).doubleValue();
+				Object b1 = q.value.get(j);
+				q.priority.set(i, a1);
+				q.value.set(i, b1);
+				q.priority.set(j, a0);
+				q.value.set(j, b0);
+
+			}
+		}
+		double a0 = q.priority.get(i + 1).doubleValue();
+		Object b0 = q.value.get(i + 1);
+		double a1 = q.priority.get(right).doubleValue();
+		Object b1 = q.value.get(right);
+		q.priority.set(i + 1, a1);
+		q.value.set(i + 1, b1);
+		q.priority.set(right, a0);
+		q.value.set(right, b0);
+		return i + 1;
+	}
+
+	private void merge() {
+
+	}
+
 	public int size() {
 		return priority.size();
 	}
@@ -119,12 +163,16 @@ public class PriorityQueue {
 	}
 
 	public void addAll(PriorityQueue q) {
+		
+		
 		for (int i = 0; i < q.size(); i++) {
 			this.add(q.getPriority().get(i), q.getValue().get(i));
 		}
 	}
 
 	public void addAll(PriorityQueue q, int inferiorLimit) {
+		
+		
 		for (int i = 0; i < q.size(); i++) {
 			this.add(q.getPriority().get(i), q.getValue().get(i), inferiorLimit);
 		}

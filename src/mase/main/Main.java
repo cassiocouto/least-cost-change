@@ -52,11 +52,11 @@ public class Main {
 	private int[][] paths;
 
 	private long startingTime;
-	private int agentsQuantity = 3;
+	private int agentsQuantity = 1;
 	private AID GRIDManagerAddress;
 	private AID[] agentsAddresses = new AID[agentsQuantity];
-	private int choosenStrategy = COOPERATIVE_ASTAR_STRATEGY;
-	private String imgName = "COOPERATIVE_3_AGENTS_3.bmp";
+	private int choosenStrategy = ASTAR_STRATEGY;
+	private String imgName = "ASTAR_1_AGENT";
 	private boolean debug = true;
 	private boolean optimize = false;
 
@@ -479,11 +479,5 @@ public class Main {
 
 	public int getHeight() {
 		return height;
-	}
-	
-	public synchronized void setPath(ArrayList<Point> path, AID id) {
-		for(Point p : path) {
-			this.graph[p.x][p.y].setTrackerId(id);
-		}
 	}
 }

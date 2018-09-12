@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
+import mase.agents.TrackerAgent;
 import mase.main.Main;
 import mase.util.PriorityQueue;
 
@@ -70,13 +71,11 @@ public abstract class PathFind extends CyclicBehaviour {
 	}
 
 	public void markPath(Point meetingPoint) {
-		ArrayList<Point> path = new ArrayList<>();
 		Point actualPoint = meetingPoint;
 		while (actualPoint != null && !actualPoint.equals(initialSpace)) {
-			path.add(actualPoint);
+			Main.getInstance().getGraph()[actualPoint.x][actualPoint.y].setTrackerId(myAgent.getAID());
 			actualPoint = parent[actualPoint.x][actualPoint.y];
 		}
-		Main.getInstance().setPath(path, myAgent.getAID());
 	}
 
 	public void bidProposal() {
@@ -105,6 +104,42 @@ public abstract class PathFind extends CyclicBehaviour {
 		myAgent.doDelete();
 	}
 
+	public Object[] evaluateNeighbours(Point actualSpace, boolean findBest) {
+		boolean pathAlreadyFound = false;
+		Point meetingPoint = null;
+		for (int i = -1; i <= 1; i++) {
+			for (int j = -1; j <= 1; j++) {
+
+				int nextX = (int) (actualSpace.x + i);
+				int nextY = (int) (actualSpace.y + j); // if (nextY < 0 || nextY >= width)continue;
+
+				try {
+					if (visited[nextX][nextY]) {
+						continue;
+					} else if (!findBest && pathAlreadyFound(new Point(nextX, nextY))) {
+						TrackerAgent.printAccountedMessage(myAgent.getLocalName()+": Someone else found a path! I'll follow this trail");
+						pathAlreadyFound = true;
+						meetingPoint = new Point(nextX, nextY);
+						parent[nextX][nextY] = actualSpace;
+						continue;
+					}
+					long tentative = Main.getInstance().getGraph()[nextX][nextY].getWeight()
+							+ sum[actualSpace.x][actualSpace.y];
+					if (tentative < sum[nextX][nextY]) {
+						sum[nextX][nextY] = tentative;
+						parent[nextX][nextY] = actualSpace;
+						adjacentSpaces.add(tentative + getHeuristic(new Point(nextX, nextY)),
+								new Point(nextX, nextY));
+					}
+				} catch (Exception e) {
+				}
+
+			}
+		}
+		
+		return new Object[] {pathAlreadyFound, meetingPoint};
+	}
+	
 	public abstract double getHeuristic(Point p);
 
 	public abstract Point chooseFinalPoint(Point p);
