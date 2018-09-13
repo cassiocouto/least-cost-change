@@ -15,6 +15,7 @@ public abstract class PathFind extends CyclicBehaviour {
 
 	protected boolean[][] visited;
 	protected Long[][] sum;
+	protected Long[][] saved_sum;
 	protected Point[][] parent;
 	protected Point initialSpace;
 	protected PriorityQueue actualSpaces;
@@ -59,6 +60,7 @@ public abstract class PathFind extends CyclicBehaviour {
 		if (minimumCost < currentMinimumSum) {
 			return;
 		} else {
+			saved_sum = sum;
 			minimumCost = currentMinimumSum;
 			pathFound = new ArrayList<Point>();
 			Point actualPoint = choosenFinalSpace;
@@ -92,6 +94,8 @@ public abstract class PathFind extends CyclicBehaviour {
 			}
 			m = new ACLMessage(ACLMessage.INFORM);
 			m.addReceiver(Main.getInstance().getGRIDManagerAddress());
+			Main.getInstance().writeImageVisitedSpaces(myAgent.getLocalName() + ".bmp", saved_sum);
+
 			try {
 				m.setContentObject(pathFound);
 				myAgent.send(m);
@@ -117,7 +121,8 @@ public abstract class PathFind extends CyclicBehaviour {
 					if (visited[nextX][nextY]) {
 						continue;
 					} else if (!findBest && pathAlreadyFound(new Point(nextX, nextY))) {
-						TrackerAgent.printAccountedMessage(myAgent.getLocalName()+": Someone else found a path! I'll follow this trail");
+						TrackerAgent.printAccountedMessage(
+								myAgent.getLocalName() + ": Someone else found a path! I'll follow this trail");
 						pathAlreadyFound = true;
 						meetingPoint = new Point(nextX, nextY);
 						parent[nextX][nextY] = actualSpace;
@@ -125,21 +130,20 @@ public abstract class PathFind extends CyclicBehaviour {
 					}
 					long tentative = Main.getInstance().getGraph()[nextX][nextY].getWeight()
 							+ sum[actualSpace.x][actualSpace.y];
-					if (tentative < sum[nextX][nextY]) {
+					if (tentative <= sum[nextX][nextY]) {
 						sum[nextX][nextY] = tentative;
 						parent[nextX][nextY] = actualSpace;
-						adjacentSpaces.add(tentative + getHeuristic(new Point(nextX, nextY)),
-								new Point(nextX, nextY));
+						adjacentSpaces.add(tentative + getHeuristic(new Point(nextX, nextY)), new Point(nextX, nextY));
 					}
 				} catch (Exception e) {
 				}
 
 			}
 		}
-		
-		return new Object[] {pathAlreadyFound, meetingPoint};
+
+		return new Object[] { pathAlreadyFound, meetingPoint };
 	}
-	
+
 	public abstract double getHeuristic(Point p);
 
 	public abstract Point chooseFinalPoint(Point p);

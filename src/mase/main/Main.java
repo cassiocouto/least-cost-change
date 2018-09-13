@@ -37,7 +37,7 @@ public class Main {
 			{ "res/mariana_friction.bmp", "res/mariana_destination.bmp", "res/mariana_source.bmp",
 					"res/mariana.csv" } };
 
-	public static String[] files = all_files[2];
+	public static String[] files = all_files[0];
 
 	private String worcwest;
 	private String factory;
@@ -55,10 +55,11 @@ public class Main {
 	private int agentsQuantity = 1;
 	private AID GRIDManagerAddress;
 	private AID[] agentsAddresses = new AID[agentsQuantity];
-	private int choosenStrategy = ASTAR_STRATEGY;
-	private String imgName = "ASTAR_1_AGENT";
+	private int choosenStrategy = DIJKSTRA_STRATEGY;
+	private String imgName = "DIJKSTRA_1_AGENT.BMP";
 	private boolean debug = true;
-	private boolean optimize = false;
+	private boolean clusterSources = false;
+	private int clusterDist = 10;
 
 	private GUI gui;
 	public static Main instance;
@@ -66,7 +67,7 @@ public class Main {
 	private int width;
 	private int height;
 
-	private int breadth = 2;
+	private int breadth = 5;
 
 	public Main() {
 	}
@@ -85,9 +86,6 @@ public class Main {
 				if (argument.startsWith("-gui:")) {
 					String value = argument.replace("-gui:", "");
 					main.setGUIActive(Boolean.parseBoolean(value));
-				} else if (argument.startsWith("-optimize:")) {
-					String value = argument.replace("-optimize:", "");
-					main.setOptimize(Boolean.parseBoolean(value));
 				}
 			}
 		}
@@ -197,14 +195,31 @@ public class Main {
 					}
 				}
 			}
-			if (optimize && initialSpaces.size() > finalSpaces.size()) {
-				ArrayList<Point> switcharoo = new ArrayList<>();
-				switcharoo.addAll(initialSpaces);
-				initialSpaces = new ArrayList<Point>();
-				initialSpaces.addAll(finalSpaces);
-				finalSpaces = new ArrayList<Point>();
-				finalSpaces.addAll(switcharoo);
+
+			if (clusterSources) {
+				int j = 0;
+				while (j < initialSpaces.size() - 1) {
+					Point curr = initialSpaces.get(j);
+					for (int k = j + 1; curr != null && k < initialSpaces.size(); k++) {
+						Point next = initialSpaces.get(k);
+						if (next != null && Point.distance(curr.x, curr.y, next.x, next.y) < clusterDist) {
+							initialSpaces.set(k, null);
+						}
+						;
+					}
+					j++;
+				}
+
+				ArrayList<Point> n_initialSpaces = new ArrayList<>();
+				for (Point p : initialSpaces) {
+					if (p != null) {
+						n_initialSpaces.add(p);
+					}
+				}
+
+				initialSpaces = n_initialSpaces;
 			}
+
 			imgFactory = null;
 			imgPowerline = null;
 		} catch (IOException ioe) {
@@ -267,11 +282,42 @@ public class Main {
 			try {
 				ImageIO.write(finalImg, "bmp", new File(imgName));
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+
+	public void writeImageVisitedSpaces(String name, Long[][] sum) {
+		long min_sum = Long.MAX_VALUE;
+		long max_sum = Long.MIN_VALUE;
+
+		for (int i = 0; i < sum.length; i++) {
+			for (int j = 0; j < sum[i].length; j++) {
+				if (min_sum > sum[i][j]) {
+					min_sum = sum[i][j];
+				}
+
+				if (max_sum < sum[i][j]) {
+					max_sum = sum[i][j];
+				}
+			}
+		}
+
+		try {
+			BufferedImage finalImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+			for (int i = 0; i < width; i++) {
+				for (int j = 0; j < height; j++) {
+					int c = (Math.round((sum[i][j] - min_sum) / (max_sum - min_sum))) * 0xFFFFFF;
+					finalImg.setRGB(i, j, new Color(c).getRGB());
+				}
+			}
+
+			ImageIO.write(finalImg, "bmp", new File(name));
+
+		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 	}
@@ -314,11 +360,9 @@ public class Main {
 			try {
 				ImageIO.write(finalImg, "bmp", new File(imgName));
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	}
@@ -444,14 +488,6 @@ public class Main {
 
 	public void setDebug(boolean debug) {
 		this.debug = debug;
-	}
-
-	public boolean isOptimize() {
-		return optimize;
-	}
-
-	public void setOptimize(boolean optimize) {
-		this.optimize = optimize;
 	}
 
 	public GUI getGui() {
